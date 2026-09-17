@@ -1,0 +1,61 @@
+# Flappy Pope
+
+A dependency-free pixel-art flying game. Choose a winged pope, angel, friar, or church bell and fly between church pillars decorated with crosses, stained-glass rose windows, and bells.
+
+Play at **[artesnobiles.com/flappypope](https://artesnobiles.com/flappypope/)**.
+
+Source: [brantlymillegan/flappypope](https://github.com/brantlymillegan/flappypope).
+
+## Run locally
+
+Requires Node.js 20 or newer. No installation is needed.
+
+```sh
+npm run dev
+```
+
+Open http://localhost:5173. `PORT=5174 npm run dev` changes the port.
+
+The header's color-theme selector offers System, Light, and Dark. System is the default and follows your device's appearance, including changes while the game is open. An explicit choice is saved on this device and shared with other open game tabs. The game scenery, pillars, floor, score display, and overlays all follow that theme immediately, including during a flight.
+
+Space, Arrow Up, click, or tap to flap. P or Escape pauses. Choose **Sound on** for synthesized chiptune music and sound effects; playback starts after a user gesture. Best score and sound preference are stored on this device when browser storage is available. Every new page opens with the pope selected. All four characters have identical physics and face right.
+
+## Scenery and music rotation
+
+Each game chooses a setting and hymn from independent shuffled rotations. All ten choices appear before the rotation repeats, with no consecutive repeats at cycle boundaries. Pausing or switching themes preserves the current setting, song, and flight.
+
+The ten settings are Roman Basilica, Assisi Hills, Alpine Chapel, Gothic Cathedral, Monastery Garden, Seaside Church, Spanish Mission, Island Abbey, Woodland Chapel, and Riverside Basilica. Each paired atlas contains a daylight panel above the matching night panel. Transparent sky areas are composited over the matching sky color.
+
+The ten synthesized hymn loops are All Creatures of Our God and King; Holy God, We Praise Thy Name; O Come, O Come, Emmanuel; O Come, All Ye Faithful; Angels We Have Heard on High; Immaculate Mary; Hail, Holy Queen Enthroned Above; Veni Creator Spiritus; Adoro Te Devote; and Pange Lingua Gloriosi.
+
+## Validation
+
+```sh
+npm run check
+npm test
+```
+
+`dist/` is the complete static app, with no build step or external runtime requests. `server.mjs` is a small localhost-only development server.
+
+## Publishing
+
+The code is maintained in this repository. The [Artes Nobiles website workflow](https://github.com/brantlymillegan/artes-nobiles-website/actions/workflows/pages.yml) checks out this repository's `main` branch, runs the game checks and tests, and includes `dist/` at `/flappypope/` in its GitHub Pages deployment. No game source files need to be copied into the website repository.
+
+After pushing a game update to `main`, publish it by running the website's **Deploy website to GitHub Pages** workflow on `master`. With the GitHub CLI:
+
+```sh
+git push origin main
+gh workflow run pages.yml --repo brantlymillegan/artes-nobiles-website --ref master
+```
+
+The game repository's own workflow validates pushes and pull requests; it does not publish on its own. Every website deployment also picks up the latest game version. Only `dist/` is served on the public website; tests and project documentation stay in this repository.
+
+Asset paths support both local hosting at `/` and production hosting at `/flappypope/`. The host should redirect `/flappypope` to `/flappypope/` before serving the page.
+
+## Art and music
+
+- Original pixel character sprites and church obstacles are drawn with Canvas. Ten paired day/night backgrounds were generated using the built-in ImageGen tool and are bundled in `dist/assets/scenes/`. Exact prompt set: [art-prompts.json](docs/art-prompts.json).
+- The hymn melodies are traditional public-domain tunes, with original synthesized square- and triangle-wave accompaniment. No sampled recordings are included. Chant rhythms are newly measured adaptations. [Source scores, MIDI references, and transcription notes](docs/music-sources.md) document all ten tunes; track-level source links are also in `dist/hymns.js`.
+- Press Start 2P by CodeMan38, licensed under the SIL Open Font License. Font and license are bundled under `dist/assets/`.
+
+Sacred figures and the Eucharist are not player characters. The pope and friar are fictional, generic designs.
