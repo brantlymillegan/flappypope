@@ -144,7 +144,7 @@ $('start-button').addEventListener('click',start);$('retry-button').addEventList
 $('pause-button').addEventListener('click',pause);$('resume-button').addEventListener('click',resume);
 $('game-frame').addEventListener('pointerdown',event=>{if(event.target.closest('button')||!['ready','playing'].includes(run.status))return;event.preventDefault();doFlap();});
 window.addEventListener('keydown',event=>{
-  if(event.target.closest('select, input, textarea, [contenteditable="true"]'))return;
+  if(event.defaultPrevented||event.target.closest('.theme-toggle, select, input, textarea, [contenteditable="true"]'))return;
   if(event.code==='KeyP'||event.code==='Escape'){event.preventDefault();if(!event.repeat)run.status==='playing'?pause():resume();return;}
   if(event.code==='Space'||event.code==='ArrowUp'){
     if(event.target.closest('button')&&event.code==='Space')return;

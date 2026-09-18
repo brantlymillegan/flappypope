@@ -4,19 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#11121e" />
-  <script src="./theme.js"></script>
+  <script src="./theme.js?v=2"></script>
   <meta name="description" content="A little faith. A lot of flapping. Fly your favorite pixel pilgrim through ten Catholic settings, by day or night, with ten chiptune hymns." />
   <title>Flappy Pope</title>
   <link rel="icon" type="image/svg+xml" href="./assets/flappy-pope-favicon.svg" />
   <link rel="stylesheet" href="./style.css" />
-  <link rel="stylesheet" href="./theme.css" />
+  <link rel="stylesheet" href="./theme.css?v=2" />
 </head>
 <body>
   <div class="page-shell">
     <header class="site-header">
       <a class="brand" href="./" aria-label="Flappy Pope home"><span class="brand-mark" aria-hidden="true">✦</span><span>FLAPPY <strong>POPE</strong></span></a>
       <div class="header-actions">
-        <label class="theme-control"><span class="sr-only">Color theme</span><select id="theme-select" title="Color theme"><option value="system" selected>System</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
+        <div class="theme-toggle" data-active-theme="system" hidden>
+          <button class="theme-trigger" type="button" aria-controls="theme-options" aria-expanded="false" aria-label="System theme. Open theme options">
+            <span class="theme-symbol theme-trigger-symbol" aria-hidden="true"></span>
+          </button>
+          <div class="theme-menu-options" id="theme-options" role="group" aria-label="Choose color theme" aria-hidden="true"></div>
+        </div>
         <button class="quiet-button" id="sound-toggle" type="button" aria-pressed="false"><span id="sound-icon" aria-hidden="true">♫</span><span id="sound-label">Sound off</span></button>
       </div>
     </header>
@@ -69,6 +74,6 @@
     <footer><span><span class="footer-note" aria-hidden="true">♫</span> <span id="track-credit">8-BIT HYMNS</span></span></footer>
   </div>
   <div id="announcement" class="sr-only" aria-live="polite" aria-atomic="true"></div>
-  <script type="module" src="./main.js"></script>
+  <script type="module" src="./main.js?v=2"></script>
 </body>
 </html>

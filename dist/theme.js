@@ -1,34 +1,125 @@
-// Apply the saved choice before styles load to avoid flashing the wrong theme.
+/* Matches the Artes Nobiles theme control while keeping game scenery in sync. */
 (() => {
-  const key = 'flappy-catholic:theme';
-  const system = window.matchMedia('(prefers-color-scheme: dark)');
-  const valid = value => ['system', 'light', 'dark'].includes(value) ? value : 'system';
-  let preference = 'system';
-  try { preference = valid(localStorage.getItem(key)); } catch {}
+  "use strict";
 
-  function apply() {
-    const theme = preference === 'system' ? (system.matches ? 'dark' : 'light') : preference;
-    document.documentElement.dataset.theme = theme;
-    document.documentElement.dataset.themePreference = preference;
-    document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#11121e' : '#f4f5fa';
-    const control = document.getElementById('theme-select');
-    if (control) control.value = preference;
+  const storageKey = "artes-nobiles-theme";
+  const themes = ["system", "light", "dark"];
+  const labels = { system: "System", light: "Light", dark: "Dark" };
+  const root = document.documentElement;
+  const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
+  let openMode = "closed";
+  let control;
+  let trigger;
+  let options;
+
+  function readPreference() {
+    try {
+      const saved = window.localStorage.getItem(storageKey);
+      return saved === "light" || saved === "dark" ? saved : "system";
+    } catch {
+      return "system";
+    }
   }
 
-  apply();
-  system.addEventListener('change', () => { if (preference === 'system') apply(); });
-  window.addEventListener('storage', event => {
-    if (event.key === key || event.key === null) {
-      preference = valid(event.newValue);
-      apply();
+  let theme = readPreference();
+
+  function applyDocumentTheme() {
+    const dark = theme === "dark" || (theme === "system" && systemTheme.matches);
+    // The canvas observes the resolved theme, including changes to the OS theme.
+    root.dataset.theme = dark ? "dark" : "light";
+    root.dataset.themePreference = theme;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#11121e" : "#f4f5fa");
+  }
+
+  // Runs in the head before CSS paints, avoiding a flash of the wrong theme.
+  applyDocumentTheme();
+  systemTheme.addEventListener("change", applyDocumentTheme);
+
+  const iconPaths = {
+    system: '<rect x="1.25" y="2" width="11.5" height="8" rx="1.25"/><path d="M5 12h4M7 10v2"/>',
+    light: '<circle cx="7" cy="7" r="2.25"/><path d="M7 1v1.25M7 11.75V13M1 7h1.25M11.75 7H13M2.76 2.76l.88.88M10.36 10.36l.88.88M11.24 2.76l-.88.88M3.64 10.36l-.88.88"/>',
+    dark: '<path d="M11.9 9.16A5.25 5.25 0 0 1 4.84 2.1 5.25 5.25 0 1 0 11.9 9.16Z"/>',
+  };
+
+  function icon(value) {
+    return `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true">${iconPaths[value]}</svg>`;
+  }
+
+  function setOpenMode(nextMode) {
+    openMode = nextMode;
+    const isOpen = openMode !== "closed";
+    control.classList.toggle("is-open", isOpen);
+    trigger.setAttribute("aria-expanded", String(isOpen));
+    const action = openMode === "closed" ? "Open theme options" : openMode === "hover" ? "Keep theme options open" : "Theme options pinned open";
+    trigger.setAttribute("aria-label", `${labels[theme]} theme. ${action}`);
+    options.setAttribute("aria-hidden", String(!isOpen));
+    for (const button of options.querySelectorAll("button")) button.tabIndex = isOpen ? 0 : -1;
+  }
+
+  function renderControl() {
+    control.dataset.activeTheme = theme;
+    trigger.title = `${labels[theme]} theme`;
+    trigger.querySelector(".theme-trigger-symbol").innerHTML = icon(theme);
+    options.replaceChildren();
+    for (const value of themes.filter(value => value !== theme)) {
+      const button = document.createElement("button");
+      button.className = "theme-option";
+      button.type = "button";
+      button.title = value === "system" ? "System" : `${labels[value]} mode`;
+      button.setAttribute("aria-label", `Use ${value} theme`);
+      button.innerHTML = `<span class="theme-symbol" aria-hidden="true">${icon(value)}</span>`;
+      button.addEventListener("click", () => chooseTheme(value));
+      options.append(button);
     }
+    setOpenMode(openMode);
+  }
+
+  function chooseTheme(value) {
+    theme = value;
+    try {
+      if (theme === "system") window.localStorage.removeItem(storageKey);
+      else window.localStorage.setItem(storageKey, theme);
+    } catch {
+      // The selection still works for this visit when storage is unavailable.
+    }
+    applyDocumentTheme();
+    renderControl();
+    setOpenMode("closed");
+    trigger.focus({ preventScroll: true });
+  }
+
+  window.addEventListener("storage", event => {
+    if (event.key !== storageKey && event.key !== null) return;
+    theme = readPreference();
+    applyDocumentTheme();
+    if (control) renderControl();
   });
-  document.addEventListener('DOMContentLoaded', () => {
-    apply();
-    document.getElementById('theme-select').addEventListener('change', event => {
-      preference = valid(event.target.value);
-      try { localStorage.setItem(key, preference); } catch {}
-      apply();
+
+  document.addEventListener("DOMContentLoaded", () => {
+    control = document.querySelector(".theme-toggle");
+    trigger = control.querySelector(".theme-trigger");
+    options = control.querySelector(".theme-menu-options");
+    renderControl();
+    control.hidden = false;
+
+    trigger.addEventListener("click", () => setOpenMode("pinned"));
+    control.addEventListener("pointerenter", event => {
+      if (event.pointerType === "mouse" && openMode !== "pinned") setOpenMode("hover");
+    });
+    control.addEventListener("pointerleave", event => {
+      if (event.pointerType === "mouse" && openMode === "hover") setOpenMode("closed");
+    });
+    document.addEventListener("pointerdown", event => {
+      if (!control.contains(event.target)) setOpenMode("closed");
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && openMode !== "closed") {
+        // Dismissing theme options must not also pause or resume the game.
+        event.preventDefault();
+        event.stopPropagation();
+        setOpenMode("closed");
+        trigger.focus({ preventScroll: true });
+      }
     });
   });
 })();

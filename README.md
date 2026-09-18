@@ -16,7 +16,7 @@ npm run dev
 
 Open http://localhost:5173. `PORT=5174 npm run dev` changes the port.
 
-The header's color-theme selector offers System, Light, and Dark. System is the default and follows your device's appearance, including changes while the game is open. An explicit choice is saved on this device and shared with other open game tabs. The game scenery, pillars, floor, score display, and overlays all follow that theme immediately, including during a flight.
+The header uses the same expanding theme icon control as Artes Nobiles. Hover to reveal the other two modes, or click/tap to keep the options open; choosing a mode, clicking outside, or pressing Escape closes them. System is the default and follows your device's appearance, including changes while the game is open. The saved choice is shared with Artes Nobiles and other open tabs on the same origin. The game scenery, pillars, floor, score display, and overlays all follow that theme immediately, including during a flight.
 
 Space, Arrow Up, click, or tap to flap. P or Escape pauses. Choose **Sound on** for synthesized chiptune music and sound effects; playback starts after a user gesture. Best score and sound preference are stored on this device when browser storage is available. Every new page opens with the pope selected. All four characters have identical physics and face right.
 

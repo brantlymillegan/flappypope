@@ -9,21 +9,47 @@
 }
 
 .header-actions { align-items: center; }
-.theme-control { display: flex; align-items: center; }
-.theme-control select {
-  font: inherit;
-  font-size: 14px;
-  min-height: 38px;
-  min-width: 96px;
-  padding: 7px 10px;
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  background: var(--surface);
+/* Match the Artes Nobiles icon control, including its own theme palette. */
+.theme-toggle {
+  --surface: #252f3b;
+  --surface-strong: #303c4b;
+  --rule: #3a4655;
+  --muted: #a8b3c4;
+  --ink: #f1f0e5;
+  --brass: #cab581;
+  --control-active: #d3deee;
+  --control-active-text: #252a32;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+  z-index: 10;
   color: var(--ink);
-  cursor: pointer;
 }
-.theme-control select:hover { border-color: var(--gold); }
-.theme-control select:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+:root[data-theme="light"] .theme-toggle {
+  --surface: #eaece6;
+  --surface-strong: #dfe4da;
+  --rule: #d4d5ce;
+  --muted: #626660;
+  --ink: #202521;
+  --brass: #947d51;
+  --control-active: #263e30;
+  --control-active-text: #f6f4ef;
+}
+.theme-toggle[hidden] { display: none; }
+.theme-menu-options { display: flex; flex-direction: row-reverse; align-items: center; gap: 3px; background: var(--surface); border: 1px solid var(--rule); border-radius: 24px; padding: 4px; position: absolute; right: 43px; opacity: 0; visibility: hidden; pointer-events: none; transform: translateX(5px); transition: opacity 160ms ease, transform 160ms ease, visibility 160ms; }
+.theme-toggle.is-open .theme-menu-options { opacity: 1; visibility: visible; pointer-events: auto; transform: translateX(0); }
+.theme-menu-options::after { content: ""; position: absolute; right: -10px; top: 0; width: 10px; height: 100%; }
+.theme-trigger, .theme-option { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; padding: 0; cursor: pointer; appearance: none; flex: none; }
+.theme-trigger { border: 1px solid var(--rule); background: transparent; color: var(--muted); transition: color 160ms ease, background 160ms ease; }
+.theme-option { border: 0; background: transparent; color: var(--muted); }
+.theme-option:hover { background: var(--surface-strong); color: var(--ink); }
+.theme-trigger:hover, .theme-toggle.is-open .theme-trigger { background: var(--control-active); color: var(--control-active-text); }
+.theme-trigger:focus-visible, .theme-option:focus-visible { outline: 2px solid var(--brass); outline-offset: 6px; }
+.theme-symbol { display: flex; }
+.theme-trigger-symbol svg { animation: theme-arrive 200ms ease both; }
+@keyframes theme-arrive { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
 /* The playfield, HUD, scenery and obstacles all follow the resolved theme. */
 .game-frame { --gold: #e8bf79; --hud-surface: #15172ccc; --hud-border: #8e7b6755; color: #f2eee5; color-scheme: dark; }
@@ -73,12 +99,16 @@
 @media (max-width: 700px) {
   .site-header { gap: 12px; }
   .header-actions { gap: 12px; }
-  .theme-control select { font-size: 12px; min-width: 81px; min-height: 36px; padding: 6px; }
   #sound-label { display: none; }
   #sound-toggle { min-width: 24px; justify-content: center; }
   .game-hud { top: 12px; left: 12px; right: 12px; }
   .score-block { padding: 6px 8px; gap: 7px; }
   .ready-content { padding: 8px 12px 17px; }
+}
+
+@media (max-width: 540px) {
+  .theme-trigger, .theme-option { width: 34px; height: 34px; }
+  .theme-menu-options { right: 39px; }
 }
 
 @media (max-width: 380px) {
