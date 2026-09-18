@@ -28,7 +28,7 @@ const scoreText=n=>String(n).padStart(2,'0');
 const particles=[];
 
 function announce(message){$('announcement').textContent=message;}
-function updateSound(){ $('sound-toggle').setAttribute('aria-pressed',String(audio.enabled));$('sound-label').textContent=audio.enabled?'Sound on':'Sound off';$('sound-toggle').setAttribute('aria-label',audio.enabled?'Sound on':'Sound off');$('sound-icon').textContent=audio.enabled?'♫':'♪'; }
+function updateSound(){ $('sound-toggle').setAttribute('aria-pressed',String(audio.enabled));$('sound-label').textContent=audio.enabled?'Sound on':'Sound off';$('sound-toggle').setAttribute('aria-label',audio.enabled?'Sound on':'Sound off'); }
 function updateScore(){ $('score').textContent=scoreText(run.score);$('best').textContent=scoreText(best); }
 function selectCharacter(id, notify=true){
   if(!names[id] || run.status==='playing' || run.status==='paused')return false;
