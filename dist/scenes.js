@@ -29,8 +29,16 @@ export function drawScene(ctx, image, theme, viewport) {
   const panelHeight = image.naturalHeight / 2;
   const sourceY = theme === 'light' ? 0 : panelHeight;
   // Paired day/night panels keep the same framing. Keep the church in the phone crop.
-  const offset = viewport.width < 639 ? viewport.left + viewport.width / 2 - 640 * .55 : 0;
-  ctx.drawImage(image, 0, sourceY, image.naturalWidth, panelHeight, Math.round(offset), 0, 640, 281);
+  const offset = Math.round(viewport.width < 639 ? viewport.left + viewport.width / 2 - 640 * .55 : 0);
+  ctx.drawImage(image, 0, sourceY, image.naturalWidth, panelHeight, offset, 0, 640, 281);
+  // Continue the panorama on wide displays without stretching its pixel art.
+  for(let tile=1,x=offset+640;x<viewport.left+viewport.width;tile++,x+=640){
+    ctx.save();
+    ctx.translate(x+(tile%2?640:0),0);
+    if(tile%2)ctx.scale(-1,1);
+    ctx.drawImage(image,0,sourceY,image.naturalWidth,panelHeight,0,0,640,281);
+    ctx.restore();
+  }
 }
 
 const palettes = {
@@ -45,8 +53,9 @@ export function sceneryPalette(theme, accent) {
 }
 
 function rect(ctx, x, y, w, h, color) { ctx.fillStyle = color; ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); }
-export function drawChurchFloor(ctx, distance, palette) {
-  rect(ctx,0,278,640,2,palette.trim);rect(ctx,0,280,640,3,palette.trimShade);rect(ctx,0,283,640,17,palette.floor);
+export function drawChurchFloor(ctx, distance, palette, left=0, width=640) {
+  const start=Math.floor(left), span=Math.ceil(left+width)-start;
+  rect(ctx,start,278,span,2,palette.trim);rect(ctx,start,280,span,3,palette.trimShade);rect(ctx,start,283,span,17,palette.floor);
   const shift = Math.floor(distance)%24;
-  for(let x=-24-shift;x<664;x+=24){rect(ctx,x,284,22,6,palette.tile);rect(ctx,x+1,284,20,1,palette.tileLight);rect(ctx,x+12,292,22,7,palette.shadow);}
+  for(let x=Math.floor(left/24)*24-24-shift;x<left+width+24;x+=24){rect(ctx,x,284,22,6,palette.tile);rect(ctx,x+1,284,20,1,palette.tileLight);rect(ctx,x+12,292,22,7,palette.shadow);}
 }

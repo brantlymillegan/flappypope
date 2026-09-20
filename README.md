@@ -20,6 +20,8 @@ The header uses the same expanding theme icon control as Artes Nobiles. Hover to
 
 Space, Arrow Up, click, or tap to flap. P or Escape pauses. Choose **Sound on** for synthesized chiptune music and sound effects; playback starts after a user gesture. Best score and sound preference are stored on this device when browser storage is available. Every new page opens with the pope selected. All four characters have identical physics and face right.
 
+The bottom-right fullscreen button expands the game to fit portrait, landscape, and ultrawide screens while keeping the full flight height and proportional pixel art. The course and scenery extend across wider displays. Use the same button or Escape to leave fullscreen; an active flight pauses when you leave. Browsers without native fullscreen use a full-window layout. Choosing another flyer exits fullscreen and returns focus to the character picker.
+
 ## Scenery, pillars, and music rotation
 
 Each game chooses a setting, pillar style, and hymn from independent shuffled rotations. Each rotation uses all ten choices before repeating, with no consecutive repeats at cycle boundaries. Pausing or switching themes preserves the current setting, pillars, song, and flight.

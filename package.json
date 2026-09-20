@@ -7,6 +7,6 @@
     "dev": "node server.mjs",
     "start": "node server.mjs",
     "test": "node --test tests/*.test.js",
-    "check": "node --check dist/main.js && node --check dist/game-model.js && node --check dist/sprites.js && node --check dist/audio.js && node --check dist/theme.js && node --check dist/scenes.js && node --check dist/columns.js && node --check dist/hymns.js && node --check dist/rotation.js"
+    "check": "node --check dist/main.js && node --check dist/game-model.js && node --check dist/sprites.js && node --check dist/audio.js && node --check dist/theme.js && node --check dist/scenes.js && node --check dist/columns.js && node --check dist/hymns.js && node --check dist/rotation.js && node --check dist/fullscreen.js && node --check dist/viewport.js"
   }
 }

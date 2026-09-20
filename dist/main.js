@@ -5,6 +5,8 @@ import { HYMNS } from './hymns.js';
 import { ShuffleBag } from './rotation.js';
 import { SCENES, loadScene, drawScene, sceneryPalette, drawChurchFloor } from './scenes.js';
 import { COLUMN_STYLES, columnPalette, drawCatholicColumn } from './columns.js';
+import { createFullscreenController } from './fullscreen.js';
+import { gameViewport } from './viewport.js';
 
 const $ = id => document.getElementById(id);
 const canvas=$('game'), ctx=canvas.getContext('2d');
@@ -22,8 +24,18 @@ let activeScene=sceneRotation.next(), activeHymn=hymnRotation.next(), activeColu
 let currentTheme=document.documentElement.dataset.theme==='light'?'light':'dark';
 let palette=sceneryPalette(currentTheme,activeScene.accent), flightsStarted=0, preparing=false;
 let pillarPalette=columnPalette(currentTheme,activeColumnStyle);
-let viewport={left:0,width:640};
-function resizeViewport(){const scale=Math.max(canvas.clientWidth/640,canvas.clientHeight/300);const width=Math.min(640,canvas.clientWidth/scale);viewport={left:(640-width)*.25,width};}
+let viewport=gameViewport(640,300,false), choosingFlyer=false;
+const fullscreen=createFullscreenController({frame:$('game-frame'),button:$('fullscreen-button'),announce,
+  onChange:resizeViewport,
+  onExit(){
+    pause();
+    if(choosingFlyer){choosingFlyer=false;ready();focusFlyer();}
+  }
+});
+function resizeViewport(){
+  viewport=gameViewport(canvas.clientWidth,canvas.clientHeight,fullscreen.isActive());
+  if(canvas.width!==viewport.canvasWidth){canvas.width=viewport.canvasWidth;ctx.imageSmoothingEnabled=false;}
+}
 new ResizeObserver(resizeViewport).observe(canvas);
 resizeViewport();
 const scoreText=n=>String(n).padStart(2,'0');
@@ -110,6 +122,11 @@ function finish(){
 function pause(){if(run.status!=='playing')return;run.status='paused';audio.setPaused(true);syncUI();$('resume-button').focus({preventScroll:true});announce('Flight paused.');}
 function resume(){if(run.status!=='paused')return;run.status='playing';accumulator=0;previousTime=performance.now();audio.setPaused(false);syncUI();canvas.focus({preventScroll:true});announce('Flight resumed.');}
 function ready(){run=createRun();particles.length=0;audio.setPaused(false);syncUI();$('start-button').focus({preventScroll:true});}
+function focusFlyer(){document.querySelector(`[data-character="${character}"]`).focus();}
+function chooseFlyer(){
+  if(fullscreen.isActive()){choosingFlyer=true;fullscreen.exit();}
+  else {ready();focusFlyer();}
+}
 
 function rect(x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h));}
 function drawPipe(pipe,opacity=1){
@@ -120,10 +137,13 @@ function drawPipe(pipe,opacity=1){
 }
 function render(dt){
   sceneTime+=dt;
-  rect(0,0,640,300,currentTheme==='light'?'#8bc7eb':'#111b36');
+  rect(0,0,canvas.width,300,currentTheme==='light'?'#8bc7eb':'#111b36');
+  ctx.save();ctx.translate(-viewport.cameraLeft,0);
   if(sceneImage)drawScene(ctx,sceneImage,currentTheme,viewport);
   if(run.status==='ready'){
-    drawPipe({x:54,center:156,gap:WORLD.gap},.94);drawPipe({x:562,center:124,gap:WORLD.gap},.94);
+    const left=fullscreen.isActive()?viewport.left+18:54;
+    const right=fullscreen.isActive()?viewport.left+viewport.width-57:562;
+    drawPipe({x:left,center:156,gap:WORLD.gap},.94);drawPipe({x:right,center:124,gap:WORLD.gap},.94);
   }else{
     for(const pipe of run.pipes)drawPipe(pipe);
     if(run.status==='playing' && !reducedMotion && Math.random()<dt*18)particles.push({x:WORLD.playerX-12,y:run.y+Math.random()*8-4,life:.5});
@@ -131,20 +151,21 @@ function render(dt){
     const tilt=Math.max(-.3,Math.min(.65,run.velocity/430));
     drawSprite(ctx,character,WORLD.playerX,run.y,1.15,run.elapsed-run.flapAt<.15||Math.sin(run.elapsed*16)>0,tilt);
   }
-  drawChurchFloor(ctx,run.status==='ready'?(reducedMotion?0:sceneTime*12):run.distance,palette);
+  drawChurchFloor(ctx,run.status==='ready'?(reducedMotion?0:sceneTime*12):run.distance,palette,viewport.cameraLeft,canvas.width);
+  ctx.restore();
 }
 function frame(time){
   const dt=previousTime?Math.min((time-previousTime)/1000,.05):0;previousTime=time;
   if(run.status==='playing'){
     accumulator+=dt;
-    while(accumulator>=1/120){const event=advance(run,1/120);accumulator-=1/120;if(event.scored){audio.point();updateScore();}if(event.collided){finish();accumulator=0;break;}}
+    while(accumulator>=1/120){const event=advance(run,1/120,viewport.left+viewport.width);accumulator-=1/120;if(event.scored){audio.point();updateScore();}if(event.collided){finish();accumulator=0;break;}}
   }else accumulator=0;
   render(dt);requestAnimationFrame(frame);
 }
 
 document.querySelectorAll('[data-sprite]').forEach(c=>paintPortrait(c,c.dataset.sprite));
 document.querySelectorAll('[data-character]').forEach(button=>button.addEventListener('click',()=>{selectCharacter(button.dataset.character);if(run.status==='over')ready();}));
-$('start-button').addEventListener('click',start);$('retry-button').addEventListener('click',start);$('choose-button').addEventListener('click',ready);
+$('start-button').addEventListener('click',start);$('retry-button').addEventListener('click',start);$('choose-button').addEventListener('click',chooseFlyer);
 $('pause-button').addEventListener('click',pause);$('resume-button').addEventListener('click',resume);
 const pointerControls='button, a, input, select, textarea, label, [contenteditable="true"], .theme-toggle';
 const waitingToFly=()=>run.status==='ready'||run.status==='over';

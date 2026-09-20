@@ -9,7 +9,7 @@ export function flap(run) {
   run.velocity = WORLD.lift;
   run.flapAt = run.elapsed;
 }
-export function advance(run, dt) {
+export function advance(run, dt, viewRight = WORLD.width) {
   if (run.status !== 'playing' || dt <= 0) return { scored: false, collided: false };
   const beforeScore = run.score;
   run.elapsed += dt;
@@ -18,13 +18,16 @@ export function advance(run, dt) {
   const speed = WORLD.speed + Math.min(run.score * .45, 18);
   run.distance += speed * dt;
   for (const pipe of run.pipes) pipe.x -= speed * dt;
-  const last = run.pipes.at(-1);
-  if (!last || last.x <= WORLD.width - WORLD.spacing) {
+  const rightEdge = Math.max(WORLD.width, Number.isFinite(viewRight) ? viewRight : WORLD.width);
+  let last = run.pipes.at(-1);
+  // Fill an expanded view immediately while preserving the course already in flight.
+  while (!last || last.x <= rightEdge - WORLD.spacing) {
     // Switch altitude bands each time, with a fresh height inside the chosen band.
     run.gapBand = (run.gapBand + 1 + Math.floor(run.random() * 2)) % GAP_BANDS.length;
     const [minCenter, maxCenter] = GAP_BANDS[run.gapBand];
     const center = minCenter + run.random() * (maxCenter - minCenter);
-    run.pipes.push({ x: last ? last.x + WORLD.spacing : WORLD.width + 20, center, gap: Math.max(WORLD.minGap, WORLD.gap - run.score * .4), passed: false });
+    last = { x: last ? last.x + WORLD.spacing : WORLD.width + 20, center, gap: Math.max(WORLD.minGap, WORLD.gap - run.score * .4), passed: false };
+    run.pipes.push(last);
   }
   run.pipes = run.pipes.filter(pipe => pipe.x > -WORLD.pipeWidth - 15);
   let collided = run.y - WORLD.radius <= 0 || run.y + WORLD.radius >= WORLD.ground;

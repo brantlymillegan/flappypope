@@ -32,7 +32,42 @@ test('ceiling and floor collisions end a flight', () => {
 test('paused and ended flights do not advance or react to flaps', () => {
   for(const status of ['paused','over']){
     const run=createRun();run.status=status;const before=JSON.stringify(run);
-    advance(run,.05);flap(run);assert.equal(JSON.stringify(run),before);
+    advance(run,.05,3000);flap(run);assert.equal(JSON.stringify(run),before);
+  }
+});
+
+test('widening the view fills the course at regular spacing and narrowing preserves it', () => {
+  const run=createRun(()=>.5);flap(run);
+  advance(run,1/120);
+  const existing=run.pipes.map(pipe=>({pipe,x:pipe.x,center:pipe.center,gap:pipe.gap}));
+  const rightEdge=2400;
+  advance(run,1/120,rightEdge);
+  assert.ok(run.pipes.length>10,'the expanded view receives its whole course immediately');
+  assert.ok(run.pipes.at(-1).x>rightEdge-WORLD.spacing);
+  assert.ok(run.pipes.at(-1).x<=rightEdge);
+  for(let i=1;i<run.pipes.length;i++){
+    assert.ok(Math.abs(run.pipes[i].x-run.pipes[i-1].x-WORLD.spacing)<1e-8);
+  }
+  for(const [i,before] of existing.entries()){
+    assert.equal(run.pipes[i],before.pipe);
+    assert.ok(Math.abs(run.pipes[i].x-(before.x-WORLD.speed/120))<1e-8);
+    assert.equal(run.pipes[i].center,before.center);
+    assert.equal(run.pipes[i].gap,before.gap);
+  }
+  const widePipes=[...run.pipes];
+  advance(run,1/120,300);
+  assert.deepEqual(run.pipes,widePipes,'narrowing does not remove future columns');
+});
+
+test('the visible width does not alter flight physics', () => {
+  const narrow=createRun(()=>.5),wide=createRun(()=>.5);
+  flap(narrow);flap(wide);
+  for(let frame=0;frame<12;frame++){
+    advance(narrow,1/120);
+    advance(wide,1/120,2400);
+  }
+  for(const property of ['status','y','velocity','score','elapsed','distance','flapAt']){
+    assert.equal(wide[property],narrow[property],property);
   }
 });
 
