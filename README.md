@@ -20,9 +20,11 @@ The header uses the same expanding theme icon control as Artes Nobiles. Hover to
 
 Space, Arrow Up, click, or tap to flap. P or Escape pauses. Choose **Sound on** for synthesized chiptune music and sound effects; playback starts after a user gesture. Best score and sound preference are stored on this device when browser storage is available. Every new page opens with the pope selected. All four characters have identical physics and face right.
 
-## Scenery and music rotation
+## Scenery, pillars, and music rotation
 
-Each game chooses a setting and hymn from independent shuffled rotations. All ten choices appear before the rotation repeats, with no consecutive repeats at cycle boundaries. Pausing or switching themes preserves the current setting, song, and flight.
+Each game chooses a setting, pillar style, and hymn from independent shuffled rotations. Each rotation uses all ten choices before repeating, with no consecutive repeats at cycle boundaries. Pausing or switching themes preserves the current setting, pillars, song, and flight.
+
+The ten pillar designs draw on basilica marble, Gothic tracery, Romanesque arches, bell towers, Cosmati mosaics, papal keys, Celtic abbeys, monastery timber, Baroque chapels, and stained glass. Each uses a matching day/night palette, while keeping the same obstacle dimensions and gap geometry.
 
 The ten settings are Roman Basilica, Assisi Hills, Alpine Chapel, Gothic Cathedral, Monastery Garden, Seaside Church, Spanish Mission, Island Abbey, Woodland Chapel, and Riverside Basilica. Each paired atlas contains a daylight panel above the matching night panel. Transparent sky areas are composited over the matching sky color.
 

@@ -9,6 +9,8 @@
 }
 
 .header-actions { align-items: center; }
+.brand { font-family: var(--pixel); font-weight: normal; letter-spacing: 0; line-height: 1.5; }
+.brand strong { font-weight: inherit; }
 .brand-mark { display: block; width: 48px; height: 48px; flex-shrink: 0; image-rendering: pixelated; }
 #sound-icon { position: relative; display: inline-flex; align-items: center; justify-content: center; height: 26px; line-height: 1; }
 #sound-toggle[aria-pressed="false"] #sound-icon::after {

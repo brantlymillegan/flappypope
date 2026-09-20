@@ -3,7 +3,8 @@ import { drawSprite, paintPortrait } from './sprites.js';
 import { Chiptune } from './audio.js';
 import { HYMNS } from './hymns.js';
 import { ShuffleBag } from './rotation.js';
-import { SCENES, loadScene, drawScene, sceneryPalette, drawCatholicColumn, drawChurchFloor } from './scenes.js';
+import { SCENES, loadScene, drawScene, sceneryPalette, drawChurchFloor } from './scenes.js';
+import { COLUMN_STYLES, columnPalette, drawCatholicColumn } from './columns.js';
 
 const $ = id => document.getElementById(id);
 const canvas=$('game'), ctx=canvas.getContext('2d');
@@ -16,10 +17,11 @@ let best=Math.max(0,Number(read('best','0'))||0);
 let run=createRun(), previousTime=0, accumulator=0, sceneTime=0;
 let reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const audio=new Chiptune();audio.enabled=read('sound','on')==='on';
-const sceneRotation=new ShuffleBag(SCENES), hymnRotation=new ShuffleBag(HYMNS);
-let activeScene=sceneRotation.next(), activeHymn=hymnRotation.next(), sceneImage=null;
+const sceneRotation=new ShuffleBag(SCENES), hymnRotation=new ShuffleBag(HYMNS), columnRotation=new ShuffleBag(COLUMN_STYLES);
+let activeScene=sceneRotation.next(), activeHymn=hymnRotation.next(), activeColumnStyle=columnRotation.next(), sceneImage=null;
 let currentTheme=document.documentElement.dataset.theme==='light'?'light':'dark';
 let palette=sceneryPalette(currentTheme,activeScene.accent), flightsStarted=0, preparing=false;
+let pillarPalette=columnPalette(currentTheme,activeColumnStyle);
 let viewport={left:0,width:640};
 function resizeViewport(){const scale=Math.max(canvas.clientWidth/640,canvas.clientHeight/300);const width=Math.min(640,canvas.clientWidth/scale);viewport={left:(640-width)*.25,width};}
 new ResizeObserver(resizeViewport).observe(canvas);
@@ -52,7 +54,9 @@ function updateSceneLabels(){
   $('scene-caption-label').textContent=`${activeScene.name.toUpperCase()} · ${period.toUpperCase()}`;
   $('game-frame').dataset.scene=activeScene.id;
   $('game-frame').dataset.sceneTheme=currentTheme;
+  $('game-frame').dataset.columnStyle=activeColumnStyle.id;
   palette=sceneryPalette(currentTheme,activeScene.accent);
+  pillarPalette=columnPalette(currentTheme,activeColumnStyle);
 }
 function updateHymnLabel(){
   $('track-credit').textContent=`8-BIT HYMN · ${activeHymn.title.toUpperCase()}`;
@@ -71,7 +75,7 @@ async function start(){
     const nextScene=flightsStarted?sceneRotation.next():activeScene;
     const image=await loadScene(nextScene);
     activeScene=nextScene;sceneImage=image;
-    if(flightsStarted)activeHymn=hymnRotation.next();
+    if(flightsStarted){activeHymn=hymnRotation.next();activeColumnStyle=columnRotation.next();}
     flightsStarted++;
     audio.setTrack(activeHymn);updateSceneLabels();updateHymnLabel();
     run=createRun();particles.length=0;accumulator=0;flap(run);
@@ -92,7 +96,7 @@ async function start(){
   }
 }
 function doFlap(){
-  if(run.status==='ready')start();
+  if(run.status==='ready'||run.status==='over')start();
   else if(run.status==='playing') {flap(run);audio.flap(character);}
 }
 function finish(){
@@ -110,8 +114,8 @@ function ready(){run=createRun();particles.length=0;audio.setPaused(false);syncU
 function rect(x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h));}
 function drawPipe(pipe,opacity=1){
   ctx.save();ctx.globalAlpha=opacity;
-  drawCatholicColumn(ctx,pipe.x,0,pipe.center-pipe.gap/2,true,palette);
-  drawCatholicColumn(ctx,pipe.x,pipe.center+pipe.gap/2,WORLD.ground,false,palette);
+  drawCatholicColumn(ctx,pipe.x,0,pipe.center-pipe.gap/2,true,pillarPalette,activeColumnStyle);
+  drawCatholicColumn(ctx,pipe.x,pipe.center+pipe.gap/2,WORLD.ground,false,pillarPalette,activeColumnStyle);
   ctx.restore();
 }
 function render(dt){
@@ -142,12 +146,31 @@ document.querySelectorAll('[data-sprite]').forEach(c=>paintPortrait(c,c.dataset.
 document.querySelectorAll('[data-character]').forEach(button=>button.addEventListener('click',()=>{selectCharacter(button.dataset.character);if(run.status==='over')ready();}));
 $('start-button').addEventListener('click',start);$('retry-button').addEventListener('click',start);$('choose-button').addEventListener('click',ready);
 $('pause-button').addEventListener('click',pause);$('resume-button').addEventListener('click',resume);
-$('game-frame').addEventListener('pointerdown',event=>{if(event.target.closest('button')||!['ready','playing'].includes(run.status))return;event.preventDefault();doFlap();});
+const pointerControls='button, a, input, select, textarea, label, [contenteditable="true"], .theme-toggle';
+const waitingToFly=()=>run.status==='ready'||run.status==='over';
+let startTap=null;
+// Wait for a completed tap so scrolling the page does not launch a flight.
+document.addEventListener('pointerdown',event=>{
+  startTap=!event.defaultPrevented&&event.isPrimary&&event.button===0&&waitingToFly()&&!event.target.closest(pointerControls)
+    ?{x:event.clientX,y:event.clientY}:null;
+});
+document.addEventListener('pointercancel',()=>{startTap=null;});
+document.addEventListener('click',event=>{
+  const tap=startTap;startTap=null;
+  if(!tap||event.defaultPrevented||event.button!==0||event.target.closest(pointerControls)||!waitingToFly())return;
+  if(Math.hypot(event.clientX-tap.x,event.clientY-tap.y)>12)return;
+  event.preventDefault();doFlap();
+});
+$('game-frame').addEventListener('pointerdown',event=>{
+  if(!event.isPrimary||event.button!==0||event.target.closest(pointerControls)||run.status!=='playing')return;
+  event.preventDefault();doFlap();
+});
 window.addEventListener('keydown',event=>{
   if(event.defaultPrevented||event.target.closest('.theme-toggle, select, input, textarea, [contenteditable="true"]'))return;
   if(event.code==='KeyP'||event.code==='Escape'){event.preventDefault();if(!event.repeat)run.status==='playing'?pause():resume();return;}
   if(event.code==='Space'||event.code==='ArrowUp'){
-    if(event.target.closest('button')&&event.code==='Space')return;
+    const button=event.target.closest('button');
+    if(event.code==='Space'&&button&&!button.matches('#start-button, #retry-button, #resume-button, [data-character]'))return;
     event.preventDefault();if(event.repeat)return;
     if(run.status==='over')start();else if(run.status==='paused')resume();else doFlap();
   }
