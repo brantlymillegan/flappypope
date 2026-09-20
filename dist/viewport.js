@@ -1,4 +1,4 @@
-import { WORLD } from './game-model.js';
+import { WORLD } from './game-model.js?v=2';
 
 export function gameViewport(width, height, fullscreen) {
   if (fullscreen) {

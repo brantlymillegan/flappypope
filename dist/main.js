@@ -1,9 +1,9 @@
-import { WORLD, createRun, flap, advance } from './game-model.js';
+import { WORLD, createRun, flap, advance } from './game-model.js?v=2';
 import { drawSprite, paintPortrait } from './sprites.js';
 import { Chiptune } from './audio.js';
 import { HYMNS } from './hymns.js';
 import { ShuffleBag } from './rotation.js';
-import { SCENES, loadScene, drawScene, sceneryPalette, drawChurchFloor } from './scenes.js';
+import { SCENES, loadScene, drawScene, sceneryPalette, drawChurchFloor } from './scenes.js?v=2';
 import { COLUMN_STYLES, columnPalette, drawCatholicColumn } from './columns.js';
 import { createFullscreenController } from './fullscreen.js';
 import { gameViewport } from './viewport.js';
