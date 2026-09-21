@@ -9,12 +9,15 @@
   <title>Flappy Pope</title>
   <link rel="icon" type="image/svg+xml" href="./assets/flappy-pope-favicon.svg" />
   <link rel="stylesheet" href="./style.css" />
-  <link rel="stylesheet" href="./theme.css?v=5" />
+  <link rel="stylesheet" href="./theme.css?v=6" />
 </head>
 <body>
   <div class="page-shell">
     <header class="site-header">
-      <a class="brand" href="./" aria-label="Flappy Pope home"><img class="brand-mark" src="./assets/flappy-pope-favicon.svg" width="48" height="48" alt="" aria-hidden="true" /><span>FLAPPY <strong>POPE</strong></span></a>
+      <div class="brand">
+        <button id="brand-animation" type="button" aria-label="Replay Flappy Pope icon animation" title="Animate Flappy Pope"><span class="brand-mark" aria-hidden="true"><img src="./assets/flappy-pope-favicon.svg" width="48" height="48" alt="" /></span></button>
+        <a href="./" aria-label="Flappy Pope home">FLAPPY <strong>POPE</strong></a>
+      </div>
       <div class="header-actions">
         <div class="theme-toggle" data-active-theme="system" hidden>
           <button class="theme-trigger" type="button" aria-controls="theme-options" aria-expanded="false" aria-label="System theme. Open theme options">
@@ -78,6 +81,6 @@
 
     <footer><span><span class="footer-note" aria-hidden="true">♫</span> <span id="track-credit">8-BIT HYMNS</span></span></footer>
   </div>
-  <script type="module" src="./main.js?v=5"></script>
+  <script type="module" src="./main.js?v=6"></script>
 </body>
 </html>

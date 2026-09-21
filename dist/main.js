@@ -7,8 +7,10 @@ import { SCENES, loadScene, drawScene, sceneryPalette, drawChurchFloor } from '.
 import { COLUMN_STYLES, columnPalette, drawCatholicColumn } from './columns.js';
 import { createFullscreenController } from './fullscreen.js';
 import { gameViewport } from './viewport.js';
+import { setupBrandAnimation } from './brand-animation.js';
 
 const $ = id => document.getElementById(id);
+setupBrandAnimation($('brand-animation'));
 const canvas=$('game'), ctx=canvas.getContext('2d');
 ctx.imageSmoothingEnabled=false;
 const read=(key,fallback)=>{try{return localStorage.getItem(`flappy-catholic:${key}`)??fallback;}catch{return fallback;}};

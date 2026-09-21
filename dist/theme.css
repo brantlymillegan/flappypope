@@ -12,6 +12,16 @@
 .brand { font-family: var(--pixel); font-weight: normal; letter-spacing: 0; line-height: 1.5; }
 .brand strong { font-weight: inherit; }
 .brand-mark { display: block; width: 48px; height: 48px; flex-shrink: 0; image-rendering: pixelated; }
+#brand-animation { display: grid; place-items: center; flex: none; padding: 0; border: 0; background: transparent; min-width: 44px; min-height: 44px; touch-action: manipulation; }
+.brand-mark { position: relative; overflow: visible; }
+.brand-mark > img { display: block; width: 100%; height: 100%; }
+.brand-motion { position: absolute; top: -20.833333%; left: -12.5%; width: 129.166667%; height: 129.166667%; pointer-events: none; opacity: 0; }
+.brand-mark.is-ready > img { opacity: 0; }
+.brand-mark.is-ready > .brand-motion { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .brand-mark.is-ready > img { opacity: 1; }
+  .brand-mark.is-ready > .brand-motion { opacity: 0; }
+}
 #sound-icon { position: relative; display: inline-flex; align-items: center; justify-content: center; height: 26px; line-height: 1; }
 #sound-toggle[aria-pressed="false"] #sound-icon::after {
   content: "";
