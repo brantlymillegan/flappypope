@@ -9,6 +9,7 @@
 }
 
 .header-actions { align-items: center; }
+.arcade { margin-top: 24px; }
 .brand { font-family: var(--pixel); font-weight: normal; letter-spacing: 0; line-height: 1.5; }
 .brand strong { font-weight: inherit; }
 .brand-mark { display: block; width: 48px; height: 48px; flex-shrink: 0; image-rendering: pixelated; }
@@ -184,6 +185,7 @@ body.game-fullscreen { overflow: hidden; overscroll-behavior: none; }
 :root[data-theme="light"] .character-copy small { color: #656477; }
 :root[data-theme="light"] footer { color: #656477; }
 @media (max-width: 700px) {
+  .arcade { margin-top: 18px; }
   .brand-mark { width: 36px; height: 36px; }
   .site-header { gap: 12px; }
   .header-actions { gap: 12px; }
