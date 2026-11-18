@@ -12,6 +12,9 @@
 .arcade { margin-top: 24px; }
 .brand { font-family: var(--pixel); font-weight: normal; letter-spacing: 0; line-height: 1.5; }
 .brand strong { font-weight: inherit; }
+.brand-links { display: grid; justify-items: start; }
+.publisher-link { display: inline-flex; align-items: center; gap: .35em; min-height: 24px; color: var(--muted); font: normal 12px/1.35 "Trebuchet MS", Arial, sans-serif; letter-spacing: normal; }
+.publisher-link:hover, .publisher-link:focus-visible { color: var(--ink); text-decoration: underline; text-underline-offset: .2em; }
 .brand-mark { display: block; width: 48px; height: 48px; flex-shrink: 0; image-rendering: pixelated; }
 #brand-animation { display: grid; place-items: center; flex: none; padding: 0; border: 0; background: transparent; min-width: 44px; min-height: 44px; touch-action: manipulation; }
 .brand-mark { position: relative; overflow: visible; }
